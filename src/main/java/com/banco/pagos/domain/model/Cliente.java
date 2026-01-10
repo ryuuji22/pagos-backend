@@ -1,5 +1,6 @@
 package com.banco.pagos.domain.model;
 
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Value;
 
@@ -13,6 +14,8 @@ public class Cliente {
 
     TipoIdentificacionEnum tipoIdentificacion;
     String numeroIdentificacion;
+
+    BigDecimal valorNomina;
 
     String codigoCliente;
 

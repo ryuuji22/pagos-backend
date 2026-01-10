@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/002-create-cuenta.yml
   - include:
       file: db/changelog/003-use-uuid-codes.yml
+  - include:
+      file: db/changelog/004-add-valor-nomina-cliente.yml

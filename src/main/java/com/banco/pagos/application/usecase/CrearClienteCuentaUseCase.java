@@ -25,27 +25,29 @@ public class CrearClienteCuentaUseCase {
     DatabookPort databook;
 
     @Transactional
-    public CreacionResultadoDto ejecutar(RegistroNomina r) {
-        String tipo = r.getTipoIdentificacion().name();
-        String numero = r.getNumeroIdentificacion();
+    public CreacionResultadoDto ejecutar(RegistroNomina registroNomina) {
+        String tipo = registroNomina.getTipoIdentificacion().name();
+        String numero = registroNomina.getNumeroIdentificacion();
 
         try {
             // 1) Ya existe?
-            var existente = clienteRepo.findByIdentificacion(r.getTipoIdentificacion(), numero);
+            var existente = clienteRepo.findByIdentificacion(registroNomina
+                    .getTipoIdentificacion(), numero);
             if (existente.isPresent()) {
-                var c = existente.get();
+                var cliente = existente.get();
                 return CreacionResultadoDto.builder()
                         .estado(CreacionEstadoEnum.YA_EXISTE)
                         .tipoIdentificacion(tipo)
                         .numeroIdentificacion(numero)
-                        .clienteId(c.getId())
-                        .codigoCliente(c.getCodigoCliente())
+                        .clienteId(cliente.getId())
+                        .codigoCliente(cliente.getCodigoCliente())
                         .mensaje("Cliente ya existe")
+                        .valorNomina(cliente.getValorNomina())
                         .build();
             }
 
             // 2) Databook
-            var infoOpt = databook.findById(r.getTipoIdentificacion(), numero);
+            var infoOpt = databook.findById(registroNomina.getTipoIdentificacion(), numero);
             if (infoOpt.isEmpty()) {
                 return CreacionResultadoDto.builder()
                         .estado(CreacionEstadoEnum.NO_ENCONTRADO_DATABOOK)
@@ -58,14 +60,15 @@ public class CrearClienteCuentaUseCase {
 
             // 3) Crear cliente (UUID se genera en la entidad @PrePersist)
             Cliente creado = clienteRepo.save(Cliente.builder()
-                    .tipoIdentificacion(r.getTipoIdentificacion())
+                    .tipoIdentificacion(registroNomina.getTipoIdentificacion())
                     .numeroIdentificacion(numero)
                     .nombres(info.getNombres())
                     .apellidos(info.getApellidos())
                     .fechaNacimiento(info.getFechaNacimiento())
-                    .correo(r.getCorreo())
-                    .celular(r.getCelular())
-                    .fechaIngreso(r.getFechaIngreso())
+                    .correo(registroNomina.getCorreo())
+                    .celular(registroNomina.getCelular())
+                    .fechaIngreso(registroNomina.getFechaIngreso())
+                    .valorNomina(registroNomina.getValorNomina())
                     .build());
 
             // 4) Crear cuenta
@@ -82,6 +85,7 @@ public class CrearClienteCuentaUseCase {
                     .codigoCliente(creado.getCodigoCliente())
                     .cuentaId(cuentaCreada.getId())
                     .numeroCuenta(cuentaCreada.getNumeroCuenta())
+                    .valorNomina(creado.getValorNomina())
                     .mensaje("OK")
                     .build();
 

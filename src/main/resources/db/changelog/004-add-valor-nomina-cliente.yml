@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-add-valor-nomina-cliente
+      author: dev
+      changes:
+        - addColumn:
+            tableName: cliente
+            columns:
+              - column:
+                  name: valor_nomina
+                  type: DECIMAL(18,2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false

@@ -63,6 +63,7 @@ public class CargarNominaUseCase {
                         .linea(lineNumber)
                         .tipoIdentificacion(res.getTipoIdentificacion())
                         .numeroIdentificacion(res.getNumeroIdentificacion())
+                        .valorNomina(res.getValorNomina()) // ✅ nuevo
                         .estado(res.getEstado())
                         .mensaje(res.getMensaje())
                         .clienteId(res.getClienteId())

@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -64,6 +65,9 @@ public class ClienteEntity {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "valor_nomina", nullable = false, precision = 18, scale = 2)
+    private BigDecimal valorNomina;
 
     @PrePersist
     void onCreate() {

@@ -1,5 +1,6 @@
 package com.banco.pagos.application.dto;
 
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Value;
 
@@ -18,5 +19,8 @@ public class CreacionResultadoDto {
     Long cuentaId;
     String numeroCuenta;
 
+    BigDecimal valorNomina;
+
     String mensaje;
+
 }
