@@ -5,18 +5,17 @@ import lombok.Value;
 
 @Value
 @Builder
-public class CreacionResultado {
-
-    CreacionEstadoEnum estado;
-
+public class ItemResultadoDto {
+    int linea;
     String tipoIdentificacion;
     String numeroIdentificacion;
+
+    CreacionEstadoEnum estado;
+    String mensaje;
 
     Long clienteId;
     String codigoCliente;
 
     Long cuentaId;
     String numeroCuenta;
-
-    String mensaje;
 }

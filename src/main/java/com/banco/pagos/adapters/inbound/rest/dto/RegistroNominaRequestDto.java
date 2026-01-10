@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RegistroNominaRequest {
+public class RegistroNominaRequestDto {
 
     private String tipoIdentificacion;     // "C" o "P"
     private String numeroIdentificacion;

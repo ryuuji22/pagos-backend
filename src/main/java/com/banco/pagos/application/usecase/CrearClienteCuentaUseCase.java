@@ -1,7 +1,7 @@
 package com.banco.pagos.application.usecase;
 
 import com.banco.pagos.application.dto.CreacionEstadoEnum;
-import com.banco.pagos.application.dto.CreacionResultado;
+import com.banco.pagos.application.dto.CreacionResultadoDto;
 import com.banco.pagos.domain.model.Cliente;
 import com.banco.pagos.domain.model.RegistroNomina;
 import com.banco.pagos.domain.port.ClienteRepositoryPort;
@@ -25,7 +25,7 @@ public class CrearClienteCuentaUseCase {
     DatabookPort databook;
 
     @Transactional
-    public CreacionResultado ejecutar(RegistroNomina r) {
+    public CreacionResultadoDto ejecutar(RegistroNomina r) {
         String tipo = r.getTipoIdentificacion().name();
         String numero = r.getNumeroIdentificacion();
 
@@ -34,7 +34,7 @@ public class CrearClienteCuentaUseCase {
             var existente = clienteRepo.findByIdentificacion(r.getTipoIdentificacion(), numero);
             if (existente.isPresent()) {
                 var c = existente.get();
-                return CreacionResultado.builder()
+                return CreacionResultadoDto.builder()
                         .estado(CreacionEstadoEnum.YA_EXISTE)
                         .tipoIdentificacion(tipo)
                         .numeroIdentificacion(numero)
@@ -47,7 +47,7 @@ public class CrearClienteCuentaUseCase {
             // 2) Databook
             var infoOpt = databook.findById(r.getTipoIdentificacion(), numero);
             if (infoOpt.isEmpty()) {
-                return CreacionResultado.builder()
+                return CreacionResultadoDto.builder()
                         .estado(CreacionEstadoEnum.NO_ENCONTRADO_DATABOOK)
                         .tipoIdentificacion(tipo)
                         .numeroIdentificacion(numero)
@@ -74,7 +74,7 @@ public class CrearClienteCuentaUseCase {
                     .saldo(BigDecimal.ZERO)
                     .build());
 
-            return CreacionResultado.builder()
+            return CreacionResultadoDto.builder()
                     .estado(CreacionEstadoEnum.CREADO)
                     .tipoIdentificacion(tipo)
                     .numeroIdentificacion(numero)
@@ -86,7 +86,7 @@ public class CrearClienteCuentaUseCase {
                     .build();
 
         } catch (Exception e) {
-            return CreacionResultado.builder()
+            return CreacionResultadoDto.builder()
                     .estado(CreacionEstadoEnum.ERROR)
                     .tipoIdentificacion(tipo)
                     .numeroIdentificacion(numero)
