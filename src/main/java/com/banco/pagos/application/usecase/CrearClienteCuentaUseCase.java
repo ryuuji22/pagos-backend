@@ -1,0 +1,97 @@
+package com.banco.pagos.application.usecase;
+
+import com.banco.pagos.application.dto.CreacionEstadoEnum;
+import com.banco.pagos.application.dto.CreacionResultado;
+import com.banco.pagos.domain.model.Cliente;
+import com.banco.pagos.domain.model.RegistroNomina;
+import com.banco.pagos.domain.port.ClienteRepositoryPort;
+import com.banco.pagos.domain.port.CuentaRepositoryPort;
+import com.banco.pagos.domain.port.DatabookPort;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
+
+@ApplicationScoped
+public class CrearClienteCuentaUseCase {
+
+    @Inject
+    ClienteRepositoryPort clienteRepo;
+    @Inject
+    CuentaRepositoryPort cuentaRepo;
+    @Inject
+    DatabookPort databook;
+
+    @Transactional
+    public CreacionResultado ejecutar(RegistroNomina r) {
+        String tipo = r.getTipoIdentificacion().name();
+        String numero = r.getNumeroIdentificacion();
+
+        try {
+            // 1) Ya existe?
+            var existente = clienteRepo.findByIdentificacion(r.getTipoIdentificacion(), numero);
+            if (existente.isPresent()) {
+                var c = existente.get();
+                return CreacionResultado.builder()
+                        .estado(CreacionEstadoEnum.YA_EXISTE)
+                        .tipoIdentificacion(tipo)
+                        .numeroIdentificacion(numero)
+                        .clienteId(c.getId())
+                        .codigoCliente(c.getCodigoCliente())
+                        .mensaje("Cliente ya existe")
+                        .build();
+            }
+
+            // 2) Databook
+            var infoOpt = databook.findById(r.getTipoIdentificacion(), numero);
+            if (infoOpt.isEmpty()) {
+                return CreacionResultado.builder()
+                        .estado(CreacionEstadoEnum.NO_ENCONTRADO_DATABOOK)
+                        .tipoIdentificacion(tipo)
+                        .numeroIdentificacion(numero)
+                        .mensaje("No encontrado en databook")
+                        .build();
+            }
+            var info = infoOpt.get();
+
+            // 3) Crear cliente (UUID se genera en la entidad @PrePersist)
+            Cliente creado = clienteRepo.save(Cliente.builder()
+                    .tipoIdentificacion(r.getTipoIdentificacion())
+                    .numeroIdentificacion(numero)
+                    .nombres(info.getNombres())
+                    .apellidos(info.getApellidos())
+                    .fechaNacimiento(info.getFechaNacimiento())
+                    .correo(r.getCorreo())
+                    .celular(r.getCelular())
+                    .fechaIngreso(r.getFechaIngreso())
+                    .build());
+
+            // 4) Crear cuenta
+            var cuentaCreada = cuentaRepo.save(com.banco.pagos.domain.model.Cuenta.builder()
+                    .clienteId(creado.getId())
+                    .saldo(BigDecimal.ZERO)
+                    .build());
+
+            return CreacionResultado.builder()
+                    .estado(CreacionEstadoEnum.CREADO)
+                    .tipoIdentificacion(tipo)
+                    .numeroIdentificacion(numero)
+                    .clienteId(creado.getId())
+                    .codigoCliente(creado.getCodigoCliente())
+                    .cuentaId(cuentaCreada.getId())
+                    .numeroCuenta(cuentaCreada.getNumeroCuenta())
+                    .mensaje("OK")
+                    .build();
+
+        } catch (Exception e) {
+            return CreacionResultado.builder()
+                    .estado(CreacionEstadoEnum.ERROR)
+                    .tipoIdentificacion(tipo)
+                    .numeroIdentificacion(numero)
+                    .mensaje("Error creando cliente/cuenta: " + e.getMessage())
+                    .build();
+        }
+    }
+}

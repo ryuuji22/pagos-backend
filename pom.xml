@@ -8,7 +8,7 @@
     <name>pagos-1.0-SNAPSHOT</name>
     
     <properties>
-        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.release>18</maven.compiler.release>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <failOnMissingWebXml>false</failOnMissingWebXml>
@@ -44,6 +44,13 @@
             <version>1.5.5.Final</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>0.2.0</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
     
     <build>
@@ -51,11 +58,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <compilerArgs>
-                        <args>-Djava.endorsed.dirs=${endorsed.dir}</args>
-                    </compilerArgs>
+                    <release>${maven.compiler.release}</release>
+
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>
@@ -67,9 +73,22 @@
                             <artifactId>lombok</artifactId>
                             <version>1.18.30</version>
                         </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
                     </annotationProcessorPaths>
+
+                    <compilerArgs>
+                        <!-- Para que MapStruct genere componentes CDI -->
+                        <arg>-Amapstruct.defaultComponentModel=cdi</arg>
+                        <!-- Opcional: warnings más estrictos -->
+                        <arg>-Amapstruct.unmappedTargetPolicy=ERROR</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
