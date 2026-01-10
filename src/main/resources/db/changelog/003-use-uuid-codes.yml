@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-use-uuid-codes
+      author: dev
+      changes:
+        - modifyDataType:
+            tableName: cliente
+            columnName: codigo_cliente
+            newDataType: CHAR(36)
+
+        - addNotNullConstraint:
+            tableName: cliente
+            columnName: codigo_cliente
+            columnDataType: CHAR(36)
+
+        - modifyDataType:
+            tableName: cuenta
+            columnName: numero_cuenta
+            newDataType: CHAR(36)
+
+        - addNotNullConstraint:
+            tableName: cuenta
+            columnName: numero_cuenta
+            columnDataType: CHAR(36)

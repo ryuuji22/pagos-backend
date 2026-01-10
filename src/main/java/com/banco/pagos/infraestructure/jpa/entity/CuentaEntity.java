@@ -17,6 +17,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -54,6 +55,9 @@ public class CuentaEntity {
         }
         if (saldo == null) {
             saldo = BigDecimal.ZERO;
+        }
+        if (numeroCuenta == null || numeroCuenta.isBlank()) {
+            numeroCuenta = UUID.randomUUID().toString();
         }
     }
 }

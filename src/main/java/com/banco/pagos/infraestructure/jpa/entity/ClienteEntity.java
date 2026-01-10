@@ -14,6 +14,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -68,6 +69,9 @@ public class ClienteEntity {
     void onCreate() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
+        }
+        if (codigoCliente == null || codigoCliente.isBlank()) {
+            codigoCliente = UUID.randomUUID().toString();
         }
     }
 }
