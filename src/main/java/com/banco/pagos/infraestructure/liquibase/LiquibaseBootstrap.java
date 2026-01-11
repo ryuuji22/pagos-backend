@@ -12,9 +12,12 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+import org.jboss.logging.Logger;
 
 @WebListener
 public class LiquibaseBootstrap implements ServletContextListener {
+
+    private static final Logger LOG = Logger.getLogger(LiquibaseBootstrap.class);
 
     private static final String CHANGELOG = "db/changelog/db.changelog-master.yml";
 
@@ -23,7 +26,7 @@ public class LiquibaseBootstrap implements ServletContextListener {
         try {
             DataSource ds = (DataSource) new InitialContext().lookup("java:/PayrollDS");
 
-            try (var conn = ds.getConnection()) {
+            try ( var conn = ds.getConnection()) {
                 Database database = DatabaseFactory.getInstance()
                         .findCorrectDatabaseImplementation(new JdbcConnection(conn));
 
@@ -38,7 +41,7 @@ public class LiquibaseBootstrap implements ServletContextListener {
             }
 
             // Log visible en server.log
-            System.out.println("[Liquibase] Migraciones aplicadas OK");
+            LOG.info("[Liquibase] Migraciones aplicadas OK");
         } catch (Exception e) {
             throw new RuntimeException("[Liquibase] Falló la migración", e);
         }

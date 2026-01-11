@@ -23,7 +23,7 @@ public class NominaTxtParserService {
 
         String[] p = line.split(",", -1);
         if (p.length != 6) {
-            return ParseResult.error(lineNumber, "Formato inválido: se esperaban 6 columnas separadas por ','");
+            return ParseResult.error(lineNumber, "Formato no válido: se esperaban 6 columnas separadas por ','");
         }
 
         String tipo = p[0].trim();

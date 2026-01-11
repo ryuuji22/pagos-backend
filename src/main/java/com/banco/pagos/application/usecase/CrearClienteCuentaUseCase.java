@@ -13,9 +13,12 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class CrearClienteCuentaUseCase {
+
+    private static final Logger LOG = Logger.getLogger(CrearClienteCuentaUseCase.class);
 
     @Inject
     ClienteRepositoryPort clienteRepo;
@@ -29,11 +32,17 @@ public class CrearClienteCuentaUseCase {
         String tipo = registroNomina.getTipoIdentificacion().name();
         String numero = registroNomina.getNumeroIdentificacion();
 
+        String key = tipo + ":" + numero;
+
+        LOG.debugf("Procesando cliente %s valorNomina=%s", key,
+                registroNomina.getValorNomina());
+
         try {
             // 1) Ya existe?
             var existente = clienteRepo.findByIdentificacion(registroNomina
                     .getTipoIdentificacion(), numero);
             if (existente.isPresent()) {
+                LOG.infof("Cliente ya existe: %s (id=%d)", key, existente.get().getId());
                 var cliente = existente.get();
                 return CreacionResultadoDto.builder()
                         .estado(CreacionEstadoEnum.YA_EXISTE)
@@ -49,6 +58,7 @@ public class CrearClienteCuentaUseCase {
             // 2) Databook
             var infoOpt = databook.findById(registroNomina.getTipoIdentificacion(), numero);
             if (infoOpt.isEmpty()) {
+                LOG.warnf("No encontrado en databook: %s", key);
                 return CreacionResultadoDto.builder()
                         .estado(CreacionEstadoEnum.NO_ENCONTRADO_DATABOOK)
                         .tipoIdentificacion(tipo)
@@ -76,6 +86,8 @@ public class CrearClienteCuentaUseCase {
                     .clienteId(creado.getId())
                     .saldo(BigDecimal.ZERO)
                     .build());
+            
+            LOG.infof("Cliente creado: %s clienteId=%d cuentaId=%d", key, creado.getId(), cuentaCreada.getId());
 
             return CreacionResultadoDto.builder()
                     .estado(CreacionEstadoEnum.CREADO)
@@ -90,6 +102,8 @@ public class CrearClienteCuentaUseCase {
                     .build();
 
         } catch (Exception e) {
+            LOG.errorf(e, "Error creando cliente/cuenta para %s", key);
+            
             return CreacionResultadoDto.builder()
                     .estado(CreacionEstadoEnum.ERROR)
                     .tipoIdentificacion(tipo)

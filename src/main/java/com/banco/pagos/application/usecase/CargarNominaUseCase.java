@@ -13,9 +13,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class CargarNominaUseCase {
+
+    private static final Logger LOG = Logger.getLogger(CargarNominaUseCase.class);
 
     @Inject
     NominaTxtParserService parser;
@@ -23,6 +26,8 @@ public class CargarNominaUseCase {
     CrearClienteCuentaUseCase crearClienteCuenta;
 
     public CargaNominaResultadoDto ejecutar(InputStream txtStream) {
+        LOG.info("Inicio carga de nómina (TXT)");
+
         var resultados = new ArrayList<ItemResultadoDto>();
 
         int total = 0, procesadas = 0, creadas = 0, yaExistian = 0, noEncontradas = 0, conErrores = 0;
@@ -80,7 +85,12 @@ public class CargarNominaUseCase {
                     .mensaje("Error leyendo archivo: " + e.getMessage())
                     .build());
             conErrores++;
+            
+            LOG.error("Error leyendo/procesando archivo TXT", e);
         }
+
+        LOG.infof("Fin carga nómina: total=%d procesadas=%d creadas=%d yaExistian=%d noDatabook=%d errores=%d",
+                total, procesadas, creadas, yaExistian, noEncontradas, conErrores);
 
         return CargaNominaResultadoDto.builder()
                 .totalLineas(total)
